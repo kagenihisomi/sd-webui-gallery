@@ -1,0 +1,74 @@
+[tool.poetry]
+name = "sd-webui-gallery"
+version = "0.1.0"
+description = ""
+authors = ["kagenihisomi"]
+readme = "README.md"
+packages = [{ include = "sd_webui_gallery" }]
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+app = "sd_webui_gallery.app:main"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+gradio = "^3.44.3"
+
+[tool.poetry.group.dev.dependencies]
+ipykernel = "^6.25.2"
+pre-commit = "^3.3.1"
+py4j = "^0.10.9.7"
+fire = "^0.5.0"
+python-dotenv = "^1.0.0"
+poethepoet = "^0.18.1"
+nbqa = "^1.7.0"
+
+[tool.poetry.group.format]
+[tool.poetry.group.format.dependencies]
+black = "^23.1.0"
+autoflake = "^2.0.2"
+isort = "^5.12.0"
+
+[tool.poetry.group.test.dependencies]
+pylint = "^2.17.5"
+
+
+[tool.poetry.extras]
+[tool.poe.tasks]
+_black = 'black sd_webui_gallery tests nbs'
+_isort = 'isort sd_webui_gallery tests nbs --float-to-top'
+_autoflake = 'autoflake --in-place --remove-all-unused-imports --recursive sd_webui_gallery tests nbs'
+_pylint = "pylint sd_webui_gallery tests nbs"
+
+[tool.poe.tasks.format]
+sequence = ['_black', '_isort', '_autoflake']
+
+[tool.poe.tasks.test]
+sequence = ["_pylint"]
+
+[tool.poe.tasks.ci]
+sequence = ['format', 'test']
+
+[tool.isort]
+profile = 'black'
+multi_line_output = 3
+line_length = 100
+py_version = 310
+
+
+[tool.pylint]
+disable = """
+C,R,
+logging-fstring-interpolation
+"""
+additional-builtins = "display"
+output-format = "colorized"
+generated-members = ["torch.*", "cv2.*"]
+
+[tool.pytest.ini_options]
+addopts = "-ra -v -p no:faulthandler"
+minversion = "6.0"
+testpaths = ["test"]
