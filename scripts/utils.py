@@ -44,10 +44,10 @@ def filter_df_image_infos(
     return (
         path_full_list[:9],
         df,
-        gr.Dropdown(**calc_dropbox_updates(df, "sub_folder", sub_folders)),
-        gr.Dropdown(**calc_dropbox_updates(df, "date", dates)),
-        gr.Dropdown(**calc_dropbox_updates(df, "model", models)),
-        gr.Dropdown(**calc_dropbox_updates(df, "prompt", prompts)),
+        gr.Dropdown.update(**calc_dropbox_updates(df, "sub_folder", sub_folders)),
+        gr.Dropdown.update(**calc_dropbox_updates(df, "date", dates)),
+        gr.Dropdown.update(**calc_dropbox_updates(df, "model", models)),
+        gr.Dropdown.update(**calc_dropbox_updates(df, "prompt", prompts)),
     )
 
 
