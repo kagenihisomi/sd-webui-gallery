@@ -54,4 +54,4 @@ jobs:
 
       - name: Lint *.py files
         run: |
-          poetry run pylint $(git ls-files '*.py')
+          poetry run pylint sd_webui_gallery tests nbs
