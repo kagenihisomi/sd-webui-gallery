@@ -3,12 +3,74 @@ import logging
 import re
 from pathlib import Path
 
+import gradio as gr
 import pandas as pd
 from PIL import Image
 
-from sd_webui_gallery.constants import PATH_OUTPUTS
+from scripts.constants import PATH_OUTPUTS
 
 SPACER = " | "
+
+
+def filter_df_image_infos(
+    evt: gr.SelectData, df_infos: pd.DataFrame, sub_folders, dates, models, prompts
+):
+    df = df_infos.copy()
+
+    sub_folders_denumbered = denumber_list(sub_folders)
+    dates_denumbered = denumber_list(dates)
+    models_denumbered = denumber_list(models)
+    prompts_denumbered = denumber_list(prompts)
+
+    filters = {
+        "sub_folder": sub_folders_denumbered,
+        "date": dates_denumbered,
+        "model": models_denumbered,
+        "prompt": prompts_denumbered,
+    }
+
+    for column, values in filters.items():
+        if not values:
+            # No filter means all values are selected
+            continue
+        if column == "prompt":
+            # prompt is a column of lists
+            df = df[df[column].apply(lambda x: set(values).issubset(set(x)))]
+        else:
+            df = df[df[column].isin(values)]
+
+    path_full_list = df["path_full"].tolist()
+
+    return (
+        path_full_list,
+        df,
+        gr.Dropdown(**calc_dropbox_updates(df, "sub_folder", sub_folders)),
+        gr.Dropdown(**calc_dropbox_updates(df, "date", dates)),
+        gr.Dropdown(**calc_dropbox_updates(df, "model", models)),
+        gr.Dropdown(**calc_dropbox_updates(df, "prompt", prompts)),
+    )
+
+
+text_info = """
+Prompt
+{prompt}
+Negative Prompt
+{negative_prompt}
+Generation Data
+{generation_data}
+"""
+
+
+def display_image_info(evt: gr.SelectData, df_info: pd.DataFrame):
+    df_select = df_info.iloc[evt.index, :]
+
+    txt = text_info.format(
+        prompt=df_select["prompt_raw"],
+        negative_prompt=df_select["negative_prompt_raw"],
+        generation_data=df_select["full_generation_info"],
+    )
+
+    return txt
 
 
 def parse_gen_info(s: str) -> dict:

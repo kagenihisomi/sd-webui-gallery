@@ -5,7 +5,12 @@ Filter your images by
 - Date
 - Generation type
 
-
+### Getting started
+```
+poetry install
+```
 
 ### Export dependencies
+```
 poetry export -f requirements.txt --output requirements.txt --without-hashes --only main
+```

@@ -4,14 +4,10 @@ version = "0.1.0"
 description = ""
 authors = ["kagenihisomi"]
 readme = "README.md"
-packages = [{ include = "sd_webui_gallery" }]
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
-
-[tool.poetry.scripts]
-app = "sd_webui_gallery.app:main"
 
 [tool.poetry.dependencies]
 python = "^3.8"
@@ -38,10 +34,10 @@ pylint = "^2.17.5"
 
 [tool.poetry.extras]
 [tool.poe.tasks]
-_black = 'black sd_webui_gallery tests nbs'
-_isort = 'isort sd_webui_gallery tests nbs --float-to-top'
-_autoflake = 'autoflake --in-place --remove-all-unused-imports --recursive sd_webui_gallery tests nbs'
-_pylint = "pylint sd_webui_gallery tests nbs"
+_black = 'black scripts tests nbs'
+_isort = 'isort scripts tests nbs --float-to-top'
+_autoflake = 'autoflake --in-place --remove-all-unused-imports --recursive scripts tests nbs'
+_pylint = "pylint scripts tests nbs"
 
 [tool.poe.tasks.format]
 sequence = ['_black', '_isort', '_autoflake']
@@ -61,8 +57,9 @@ py_version = 310
 
 [tool.pylint]
 disable = """
-C,R,
+C,R,W,
 logging-fstring-interpolation
+
 """
 additional-builtins = "display"
 output-format = "colorized"
