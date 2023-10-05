@@ -18,7 +18,7 @@ DROPDOWN_SELECT = partial(
 
 
 def on_ui_tabs():
-    with gr.Blocks() as gallery:
+    with gr.Blocks(analytics_enabled=False) as gallery:
         with gr.Tabs(elem_id="image_gallery") as tabs:
             # UI Components
             df_image_infos = calc_df_image_infos()
