@@ -31,11 +31,10 @@ def on_ui_tabs():
         with gr.Row():
             with gr.Column():
                 image_gallery = gr.Gallery(
-                    value=df_image_infos["path_full"].tolist(),
+                    value=df_image_infos["path_full"].tolist()[:9],
                     label="Select an image to view information",
                     show_label=True,
                     columns=3,
-                    preview=False,
                 )
 
             with gr.Column():

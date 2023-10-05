@@ -42,7 +42,7 @@ def filter_df_image_infos(
     path_full_list = df["path_full"].tolist()
 
     return (
-        path_full_list,
+        path_full_list[:9],
         df,
         gr.Dropdown(**calc_dropbox_updates(df, "sub_folder", sub_folders)),
         gr.Dropdown(**calc_dropbox_updates(df, "date", dates)),
