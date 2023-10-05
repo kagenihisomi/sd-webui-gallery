@@ -6,10 +6,12 @@ import gradio as gr
 from modules import script_callbacks
 
 from scripts.utils import (
+    MAX_DISPLAY,
     calc_df_image_infos,
     calc_unique_options,
     display_image_info,
     filter_df_image_infos,
+    sample_df,
 )
 
 DROPDOWN_SELECT = partial(
@@ -19,19 +21,21 @@ DROPDOWN_SELECT = partial(
 
 def on_ui_tabs():
     with gr.Blocks(analytics_enabled=False) as gallery:
+        STATE_MAX_DISPLAY = gr.State(MAX_DISPLAY)
+
         # UI Components
         df_image_infos = calc_df_image_infos()
         prompts = calc_unique_options(df_image_infos, "prompt")
         models = calc_unique_options(df_image_infos, "model")
         dates = calc_unique_options(df_image_infos, "date")
         sub_folder = calc_unique_options(df_image_infos, "sub_folder")
-        grdf_image_info = gr.DataFrame(df_image_infos, visible=False)
-        grdf_image_info_filtered = gr.DataFrame(df_image_infos, visible=False)
+        grdf_image_info = gr.State(df_image_infos)
+        grdf_image_info_filtered = gr.State(sample_df(df_image_infos))
 
         with gr.Row():
             with gr.Column():
                 image_gallery = gr.Gallery(
-                    value=df_image_infos["path_full"].tolist()[:9],
+                    value=grdf_image_info_filtered.value["path_full"].tolist(),
                     label="Select an image to view information",
                     show_label=True,
                     columns=3,
@@ -75,7 +79,11 @@ def on_ui_tabs():
             dropdown.select(
                 filter_df_image_infos,
                 [grdf_image_info, *dropdowns],
-                [image_gallery, grdf_image_info_filtered, *dropdowns],
+                [
+                    image_gallery,
+                    grdf_image_info_filtered,
+                    *dropdowns,
+                ],
             )
 
         image_gallery.select(

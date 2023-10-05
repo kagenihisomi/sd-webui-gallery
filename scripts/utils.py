@@ -11,9 +11,17 @@ from scripts.constants import PATH_OUTPUTS
 
 SPACER = " | "
 
+MAX_DISPLAY = 100
+
 
 def filter_df_image_infos(
-    evt: gr.SelectData, df_infos: pd.DataFrame, sub_folders, dates, models, prompts
+    evt: gr.SelectData,
+    df_infos: pd.DataFrame,
+    sub_folders,
+    dates,
+    models,
+    prompts,
+    max_display=MAX_DISPLAY,
 ):
     df = df_infos.copy()
 
@@ -39,16 +47,36 @@ def filter_df_image_infos(
         else:
             df = df[df[column].isin(values)]
 
-    path_full_list = df["path_full"].tolist()
+    # Get random sample of max_display
+    df_sampled = sample_df(df, max_display)
 
     return (
-        path_full_list[:9],
-        df,
+        df_sampled["path_full"].tolist(),
+        df_sampled,
         gr.Dropdown.update(**calc_dropbox_updates(df, "sub_folder", sub_folders)),
         gr.Dropdown.update(**calc_dropbox_updates(df, "date", dates)),
         gr.Dropdown.update(**calc_dropbox_updates(df, "model", models)),
         gr.Dropdown.update(**calc_dropbox_updates(df, "prompt", prompts)),
     )
+
+
+def sample_df(df: pd.DataFrame, max_display=MAX_DISPLAY):
+    """
+    Adding randomness to the gallery
+    Shuffles the rows of a pandas DataFrame and returns a subset of the shuffled DataFrame.
+
+    Args:
+    df (pd.DataFrame): The DataFrame to shuffle.
+    max_display (int): The maximum number of rows to return. If the DataFrame has less than max_display rows,
+                       all rows will be returned.
+
+    Returns:
+    pd.DataFrame: A shuffled subset of the input DataFrame.
+    """
+    if len(df) < max_display:
+        return df.sample(frac=1)
+    else:
+        return df.sample(max_display)
 
 
 text_info = """
@@ -75,7 +103,17 @@ def display_image_info(evt: gr.SelectData, df_info: pd.DataFrame):
 
 def parse_gen_info(s: str) -> dict:
     """
+    Parses a string containing general information and returns a dictionary.
     e.g. 'Steps: 40, Sampler: DPM++ 2M Karras, CFG scale: 8, Seed: 1429876294, Size: 512x512, Model hash: 61bc7001e8, Model: anyhentai_20, Denoising strength: 0.7, Clip skip: 2, Hires upscale: 1.5, Hires steps: 10, Hires upscaler: Latent, Lora hashes: "concept_sunbathing: 7b93421e39bd", TI hashes: "EasyNegativeV2: 339cc9210f70, FastNegativeV2: a7465e7cc2a2, EasyNegativeV2: 339cc9210f70, FastNegativeV2: a7465e7cc2a2", Version: 1.6.0'
+
+    The input string is expected to be in a specific format, with key-value pairs separated by commas.
+    This function cleans up the string and converts it to a dictionary.
+
+    Args:
+        s (str): The input string to be parsed.
+
+    Returns:
+        dict: A dictionary containing the key-value pairs from the input string.
     """
     # Parsing Hashes in a PITA, remove
     # Split the string at the first occurrence of "Hashes" and clean
